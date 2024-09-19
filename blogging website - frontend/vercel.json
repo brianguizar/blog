@@ -1,0 +1,7 @@
+{
+    "root": "blogging website - frontend",
+    "rewrites": [
+      { "source": "/(.*)", "destination": "/" }
+    ]
+  }
+  
