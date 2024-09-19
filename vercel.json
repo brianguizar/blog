@@ -1,0 +1,18 @@
+{
+    "builds": [
+      {
+        "src": "blogging website - frontend/package.json",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "dist"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "blogging website - frontend/$1"
+      }
+    ]
+  }
+  
