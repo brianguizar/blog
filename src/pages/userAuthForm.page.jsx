@@ -2,10 +2,10 @@ import { useContext, useRef } from "react";
 import { Link } from "react-router-dom";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
-import AnimationWrapper from "../../common/page-animation";
+import AnimationWrapper from "../common/page-animation";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
-import { storeInSession } from "../../common/session";
+import { storeInSession } from "../common/session";
 import { UserContext } from "../App";
 
 const UserAuthForm = ({ type }) => {
