@@ -17,7 +17,7 @@ const App = () => {
 
     userInSession
       ? setUserAuth(JSON.parse(userInSession))
-      : setUserAuth({ access_token: null });
+      : setUserAuth({ access_token: null }); // Si no hay usuario, asigna un token nulo indicando que no está autenticado
   }, []);
 
   return (
