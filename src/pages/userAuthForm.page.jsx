@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
 import AnimationWrapper from "../common/page-animation";
@@ -16,17 +16,22 @@ const UserAuthForm = ({ type }) => {
     setUserAuth,
   } = useContext(UserContext);
 
-  console.log(access_token);
-
+  // Función para manejar la autenticación del usuario a través del servidor
   const userAuthThroughServer = (serverRoute, formData) => {
+    // Llamada a axios para hacer una solicitud POST al servidor
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
+      .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData) // Envío de la URL del servidor concatenada con la ruta específica
       .then(({ data }) => {
-        storeInSession("user", JSON.stringify(data));
-        console.log(sessionStorage);
+        // Si la solicitud es exitosa, se ejecuta el bloque 'then'
+        // Almacena los datos de autenticación del usuario en la sesión del navegador
+        storeInSession("user", JSON.stringify(data)); // Convierte los datos recibidos a un string JSON y los guarda en la sesión
+        // Actualiza el estado global de autenticación del usuario
+        setUserAuth(data); // Actualiza el estado de 'userAuth' con los datos recibidos del servidor
       })
       .catch(({ response }) => {
-        toast.error(response.data.error);
+        // Si hay un error en la solicitud, se ejecuta el bloque 'catch'
+        // Muestra un mensaje de error al usuario utilizando la librería 'toast'
+        toast.error(response.data.error); // Extrae el mensaje de error de la respuesta del servidor y lo muestra en pantalla
       });
   };
 
@@ -67,7 +72,10 @@ const UserAuthForm = ({ type }) => {
 
     userAuthThroughServer(serverRoute, formData);
   };
-  return (
+  return access_token ? (
+    <Navigate to="/" /> //Si hay una sesion activa se redirecciona a la raiz del proyecto
+  ) : (
+    //En caso de que no haya una sesion activa, se muestra el formulario
     <AnimationWrapper keyValue={type}>
       <section className="h-cover flex items-center justify-center">
         <Toaster />
