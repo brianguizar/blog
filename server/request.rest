@@ -6,3 +6,6 @@ Content-Type: application/json
     "email": "dani0@hotmail.com",
     "password": "Abc123"
 }
+
+//optener url de la imagen
+GET http://localhost:300/get-upload-url
