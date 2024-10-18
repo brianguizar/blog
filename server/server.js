@@ -8,6 +8,7 @@ import cors from "cors";
 import admin from "firebase-admin";
 import serviceAccountKey from "./blog-website-31e31-firebase-adminsdk-gqspy-1affbbba3b.json" assert { type: "json" };
 import { getAuth } from "firebase-admin/auth";
+import aws from "aws-sdk";
 
 import User from "./Schema/User.js";
 
@@ -30,6 +31,30 @@ server.use(cors());
 mongoose.connect(process.env.DB_LOCATION, {
   autoIndex: true,
 });
+
+//
+const s3 = new aws.S3({
+
+  region: '',
+  accessKeyId:process.env.AWS_ACCESS_KEY ,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+})
+
+const generateUploadURL = async () => {
+
+  const date = new Date();
+  const imageName =  ` ${nanoid()}-${date.getTime()}.jpeg`;
+
+  return await s3.getSignUrlPromise('putObject',{
+
+    Bucket : '',//nombre del aws
+    Key: imageName,
+    Expires: 1000,
+    Contentype: "image/jpeg"
+
+  })
+}
+
 
 // Función para formatear los datos del usuario para enviarlos en la respuesta
 const formatDatatoSend = (user) => {
@@ -55,6 +80,18 @@ const generateUsername = async (email) => {
   isUsernameNotUnique ? (username += nanoid().substring(0, 5)) : "";
   return username;
 };
+
+server.get('/get-upload-url',(req,res)=> {
+
+  generateUploadURL().then(url => res.status(200).json({uploadURL : url}))
+  .catch(err =>{
+
+    console.log(err.message);
+    return res.status(500).jason({error : err.message})
+  })
+})
+
+
 
 // Endpoint para registrar un nuevo usuario
 server.post("/signup", async (req, res) => {
