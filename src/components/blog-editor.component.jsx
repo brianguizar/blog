@@ -3,16 +3,29 @@ import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
 import { uploadImage } from "../common/aws";
-import {useContext} from "react";
+import {useContext, useEffect} from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { EditorContext } from "../pages/editor.pages";
+import EditorJS from "@editorjs/editorjs";
+import {tools} from "./tools.component";
 
 const BlogEditor = () => {
 
-  let blogBannerRef = useRef()
   let {blog ,blog : {title, banner, conent , tags, des}, setBlog} = useContext(EditorContext)
 
+  useEffect(() => {
 
+    let editor = new EditorsJS({
+
+      holderId: "textEditor",
+      data: '',
+      tools : tools,
+      placeholder:"Es hora de escribir una increible historia"
+
+
+    })
+
+  },[])
 
   const handleBannerUpload = (e) => {
     let img = e.target.files(0);
@@ -128,6 +141,7 @@ const BlogEditor = () => {
             <hr  className="w-full opacity-10 my-5"/>
 
 
+            <div id="textEditor" className="font-gelasio"></div>
 
 
           </div>
