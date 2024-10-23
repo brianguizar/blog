@@ -34,9 +34,8 @@ mongoose.connect(process.env.DB_LOCATION, {
 
 //
 const s3 = new aws.S3({
-
-  region: '',
-  accessKeyId:process.env.AWS_ACCESS_KEY ,
+  region: 'us-east-1',
+  accessKeyId: process.env.AWS_ACCESS_KEY ,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 })
 
@@ -45,12 +44,12 @@ const generateUploadURL = async () => {
   const date = new Date();
   const imageName =  ` ${nanoid()}-${date.getTime()}.jpeg`;
 
-  return await s3.getSignUrlPromise('putObject',{
+  return await s3.getSignedUrlPromise('putObject',{
 
-    Bucket : '',//nombre del aws
+    Bucket : 'blog-denedig',//nombre del aws
     Key: imageName,
     Expires: 1000,
-    Contentype: "image/jpeg"
+    ContentType: "image/jpeg"
 
   })
 }
@@ -87,7 +86,7 @@ server.get('/get-upload-url',(req,res)=> {
   .catch(err =>{
 
     console.log(err.message);
-    return res.status(500).jason({error : err.message})
+    return res.status(500).json({error : err.message})
   })
 })
 

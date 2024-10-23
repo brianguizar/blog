@@ -11,18 +11,13 @@ export const uploadImage = async (img) => {
 
             method: 'PUT',
             url:uploadURL,
-            headers : {'Content-Type': 'multipart/form-data'},
+            headers : {'Content-Type': 'image/jpeg'},
             data: img 
 
 
         })
         .then(() => {
-            
-           
             imgUrl = uploadURL.split("?")[0]
-
-
-
         })
     })
 
