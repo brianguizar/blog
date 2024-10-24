@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link , useNavigate} from "react-router-dom";
 import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
@@ -8,10 +8,16 @@ import { Toaster, toast } from "react-hot-toast";
 import { EditorContext } from "../pages/editor.pages";
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./tools.component";
+import axios from "axios";
+import { UserContext } from "../App";
 
 const BlogEditor = () => {
 
   //let blogBannerRef = useRef();
+
+  let {userAuth :{access_token} } = useContext(UserContext)
+
+  let navigate  = useNavigate();
 
   let {
     blog,
@@ -23,14 +29,20 @@ const BlogEditor = () => {
   } = useContext(EditorContext);
 
   useEffect(() => {
-    setTextEditor(
-      new EditorJS({
-        holderId: "textEditor",
-        data: content,
-        tools: tools,
-        placeholder: "Es hora de escribir una increible historia",
-      })
-    );
+
+    if(!textEditor.inReady){
+
+      setTextEditor(
+        new EditorJS({
+          holderId: "textEditor",
+          data: content,
+          tools: tools,
+          placeholder: "Es hora de escribir una increible historia",
+        })
+      );
+
+    }
+    
   }, []);
 
   const handleBannerUpload = (e) => {
@@ -71,6 +83,7 @@ const BlogEditor = () => {
     setBlog({ ...blog, title: input.value });
   };
 
+
   //Publicar el blog
   const handlePublishEvent = () => {
     if(!banner.length){
@@ -97,6 +110,74 @@ const BlogEditor = () => {
 
   };
 
+  const handleSaveDraft = (e) =>{
+
+    if (e.target.className.includes("disable")){
+
+      return;
+    }
+
+    if(!title.length){
+
+      return toast.error("Escribe el titulo del blog antes de guardarlo como borrador")
+    }
+
+    let loadingToast = toast.loading("Guardando borrador...");
+
+    e.target.classList.add('disable');
+
+
+    if(textEditor.isReady){
+
+      textEditor.save().then(content =>{
+
+            
+        let blogObj = {
+
+          title, banner, des, content, tags, draft: true
+        }
+
+
+        axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
+          blogObj, {
+    
+            headers: {
+              'Authorization' : `Bearer ${access_token} `
+            }
+          })
+        .then(()=> {
+    
+    
+          e.target.classList.remove('disable');
+    
+          toast.dismiss(loadingToast);
+          toast.success("Guardado :)");
+    
+          setTimeout(() =>{
+    
+            navigate("/")
+    
+          }, 500);
+    
+        })
+    
+        .catch(({response }) => {
+    
+          e.target.classList.remove('disable'); 
+          toast.dismiss(loadingToast);
+    
+          return toast.error(response.data.error)
+    
+        })
+    
+
+
+      } )
+    }
+    
+
+  }
+
   return (
     <>
       <nav className="navbar">
@@ -111,7 +192,11 @@ const BlogEditor = () => {
           <button className="btn-dark py-2" onClick={handlePublishEvent}>
             Publicar
           </button>
-          <button className="btn-light py-2">Guardar Borrador</button>
+          <button className="btn-light py-2"
+            onClick={handleSaveDraft}
+
+
+          >Guardar Borrador</button>
         </div>
       </nav>
 
