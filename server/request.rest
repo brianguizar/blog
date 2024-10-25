@@ -1,2 +1,1 @@
-//optener url de la imagen
-GET http://localhost:3000/get-upload-url
+GET http://localhost:3000/latest-blogs

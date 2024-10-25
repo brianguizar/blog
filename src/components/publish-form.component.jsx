@@ -62,22 +62,18 @@ const PublishForm = () => {
   const publishBlog = (e) =>{
 
     if (e.target.className.includes("disable")){
-
       return;
     }
 
     if(!title.length){
-
       return toast.error("Escribe el titulo del blog antes de publicarlo")
     }
 
     if (!des.length || des.length > characterLimit){
-
       return toast.error(`Escribe la descripcion sobre tu blog ${characterLimit} caracteres para publicar` )
     }
 
     if(!tags.length){
-
       return toast.error("Inserte almenos 1 tag para que podamos ranquear tu blog")
     }
 
@@ -86,43 +82,33 @@ const PublishForm = () => {
     e.target.classList.add('disable');
 
     let blogObj = {
-
       title, banner, des, content, tags, draft: false 
     }
 
     axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
       blogObj, {
-
         headers: {
           'Authorization' : `Bearer ${access_token} `
         }
       })
     .then(()=> {
-
-
       e.target.classList.remove('disable');
 
       toast.dismiss(loadingToast);
       toast.success("Publicado :)");
 
       setTimeout(() =>{
-
         navigate("/")
-
       }, 500);
 
     })
 
     .catch(({response }) => {
-
       e.target.classList.remove('disable'); 
       toast.dismiss(loadingToast);
 
       return toast.error(response.data.error)
-
     })
-
-   
   }
 
   return (

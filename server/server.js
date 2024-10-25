@@ -35,51 +35,40 @@ mongoose.connect(process.env.DB_LOCATION, {
 
 //
 const s3 = new aws.S3({
-  region: 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY ,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-})
+  region: "us-east-1",
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 const generateUploadURL = async () => {
-
   const date = new Date();
-  const imageName =  ` ${nanoid()}-${date.getTime()}.jpeg`;
+  const imageName = ` ${nanoid()}-${date.getTime()}.jpeg`;
 
-  return await s3.getSignedUrlPromise('putObject',{
-
-    Bucket : 'blog-denedig',//nombre del aws
+  return await s3.getSignedUrlPromise("putObject", {
+    Bucket: "blog-denedig", //nombre del aws
     Key: imageName,
     Expires: 1000,
-    ContentType: "image/jpeg"
+    ContentType: "image/jpeg",
+  });
+};
 
-  })
-}
-
-const verifyJWT = (req,res,next) =>{
-
-  const authHeader = req.headers['authorization'];
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if(token = null){
-
-    return res.status(401).json({error: "No access token"})
-
+  if (token == null) {
+    return res.status(401).json({ error: "No access token" });
   }
 
-  jwt.verify(token,process.env.SECRET_ACCESS_KEY,(err,user) => {
-
-    if(err){
-
-      return res.status(403).json({error: "El token de acceso es invalido"})
+  jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "El token de acceso es invalido" });
     }
 
-      req.user  = user.id
-      next()
-  })
-
-
-}
-
+    req.user = user.id;
+    next();
+  });
+};
 
 // Función para formatear los datos del usuario para enviarlos en la respuesta
 const formatDatatoSend = (user) => {
@@ -106,17 +95,14 @@ const generateUsername = async (email) => {
   return username;
 };
 
-server.get('/get-upload-url',(req,res)=> {
-
-  generateUploadURL().then(url => res.status(200).json({uploadURL : url}))
-  .catch(err =>{
-
-    console.log(err.message);
-    return res.status(500).json({error : err.message})
-  })
-})
-
-
+server.get("/get-upload-url", (req, res) => {
+  generateUploadURL()
+    .then((url) => res.status(200).json({ uploadURL: url }))
+    .catch((err) => {
+      console.log(err.message);
+      return res.status(500).json({ error: err.message });
+    });
+});
 
 // Endpoint para registrar un nuevo usuario
 server.post("/signup", async (req, res) => {
@@ -135,12 +121,10 @@ server.post("/signup", async (req, res) => {
     return res.status(403).json({ error: "Email inválido" });
   }
   if (!passwordRegex.test(password)) {
-    return res
-      .status(403)
-      .json({
-        error:
-          "La contraseña debe tener de 6 a 20 caracteres, con 1 número, 1 minúscula y 1 mayúscula",
-      });
+    return res.status(403).json({
+      error:
+        "La contraseña debe tener de 6 a 20 caracteres, con 1 número, 1 minúscula y 1 mayúscula",
+    });
   }
 
   // Verifica si el correo electrónico ya está registrado
@@ -189,11 +173,9 @@ server.post("/signin", (req, res) => {
       if (!user.google_auth) {
         bcrypt.compare(password, user.personal_info.password, (err, result) => {
           if (err) {
-            return res
-              .status(403)
-              .json({
-                error: "Ha occurrido un error, por favor intente de nuevo",
-              });
+            return res.status(403).json({
+              error: "Ha occurrido un error, por favor intente de nuevo",
+            });
           }
           if (!result) {
             return res.status(403).json({ error: "Contraseña Incorrecta" });
@@ -201,9 +183,13 @@ server.post("/signin", (req, res) => {
             return res.status(200).json(formatDatatoSend(user));
           }
         });
-      }
-      else {
-        return res.status(403).json({"error": "Esta cuenta fue creada con Google, Intenta iniciar sesion con google"})
+      } else {
+        return res
+          .status(403)
+          .json({
+            error:
+              "Esta cuenta fue creada con Google, Intenta iniciar sesion con google",
+          });
       }
 
       // Compara la contraseña proporcionada con la contraseña almacenada en la base de datos
@@ -234,12 +220,10 @@ server.post("/google-auth", async (req, res) => {
       if (user) {
         //login
         if (!user.google_auth) {
-          return res
-            .status(403)
-            .json({
-              error:
-                "Este correo no ha iniciado con Google. Porfavor ingresa tu correo y contraseña para Iniciar Sesion",
-            });
+          return res.status(403).json({
+            error:
+              "Este correo no ha iniciado con Google. Porfavor ingresa tu correo y contraseña para Iniciar Sesion",
+          });
         }
       } else {
         let username = await generateUsername(email);
@@ -260,91 +244,121 @@ server.post("/google-auth", async (req, res) => {
       return res.status(200).json(formatDatatoSend(user));
     })
     .catch((err) => {
-      return res
-        .status(500)
-        .json({
-          error:
-            "Se ha producido un error al autenticar con Google, intenta con otra",
-        });
+      return res.status(500).json({
+        error:
+          "Se ha producido un error al autenticar con Google, intenta con otra",
+      });
     });
 });
 
-server.post('/create-blog',verifyJWT ,(req, res) => {
+server.get('/latest-blogs', (req, res) => {
 
-  let authorId = req.suer;
+  let maxLimit = 5;
 
-  let {title, des, banner, tags, content, draft } = req.body;
-
-  
-  if(!title.length){
-
-    return res.status(403).json({error : "Tienes que ingresar un titulo para publicar el blog"});
-
-  }
-
-  if(!draft){
-
-    if(!des.length || des.length >200){
-
-      return res.status(403).json({error : "El blog tiene que tener una descripcion de almenos 200 caracteres"});
-    }
-  
-    if(!banner.length){
-  
-      return res.status(403).json({error: "El blog debe de contener un banner para poder publicarlo"});
-    }
-  
-    if(content.blocks.length){
-  
-      return res.status(403).json({error : "Debe haber algún contenido de blog para publicarlo."});
-    }
-  
-    if(!tags.length || tags.length > 10 ){
-  
-      return res.status(403).json({error : "Pon los tags en orden para publicar el blog, maximo 10"});
-    }
-
-
-  }
-
-
- 
-
-  tags = tags.map(tags => tags.toLowerCase());
-
-  let blog_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g,"-").trim() + nanoid ();
-
-  let blog = new Blog ({
-
-    title,des, banner, content, tags, author: authorId, blog_id , draft : Boolean(draft)
-
-
-
+  Blog.find({draft: false})
+  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+  .sort({ "publishedAt": -1})
+  .select("blog_id title des banner activity tags publishedAt -_id")
+  .limit(maxLimit)
+  .then(blogs => {
+    return res.status(200).json({ blogs })
   })
-
-  blog.save().then(blog =>{
-
-    let incrementVal = draft ? 0 : 1;
-
-    User.findOneAndUpdate({_id : authorId}, {$inc : {"account_info.total_posts" : incrementVal }, 
-    $push : {"blogs" : blog._id} })
-
-    .then(user => {
-
-      return res.status(200).json({id : blog.blog_id})
-    })
-
-    .catch(err => {
-
-      return res.status(500).json({error : err.message})
-    })
-
-
+  .catch(err => {
+    return res.status(500).json({ error: err.message })
   })
-
-
-
 })
+
+server.post("/create-blog", verifyJWT, (req, res) => {
+  let authorId = req.user;
+
+  let { title, des, banner, tags, content, draft } = req.body;
+
+  if (!title.length) {
+    return res
+      .status(403)
+      .json({ error: "Tienes que ingresar un titulo para publicar el blog" });
+  }
+
+  if (!draft) {
+    if (!des.length || des.length > 200) {
+      return res
+        .status(403)
+        .json({
+          error:
+            "El blog tiene que tener una descripcion de maximo 200 caracteres",
+        });
+    }
+
+    if (!banner.length) {
+      return res
+        .status(403)
+        .json({
+          error: "El blog debe de contener un banner para poder publicarlo",
+        });
+    }
+
+    if (!content.blocks.length) {
+      return res
+        .status(403)
+        .json({ error: "Debe haber algún contenido de blog para publicarlo." });
+    }
+
+    if (!tags.length || tags.length > 5) {
+      return res
+        .status(403)
+        .json({
+          error: "Pon los tags en orden para publicar el blog, maximo 5",
+        });
+    }
+  }
+
+  tags = tags.map((tags) => tags.toLowerCase());
+
+  let blog_id =
+    title
+      .replace(/[^a-zA-Z0-9]/g, " ")
+      .replace(/\s+/g, "-")
+      .trim() + nanoid();
+
+  let blog = new Blog({
+    title,
+    des,
+    banner,
+    content,
+    tags,
+    author: authorId,
+    blog_id,
+    draft: Boolean(draft),
+  });
+
+  blog
+    .save()
+    .then((blog) => {
+      let incrementVal = draft ? 0 : 1;
+
+      User.findOneAndUpdate(
+        { _id: authorId },
+        {
+          $inc: { "account_info.total_posts": incrementVal },
+          $push: { blogs: blog._id },
+        }
+      )
+
+        .then((user) => {
+          return res.status(200).json({ id: blog.blog_id });
+        })
+
+        .catch((err) => {
+          return res
+            .status(500)
+            .json({ error: "Fallo al actualizar el numero de posts" });
+        });
+    })
+
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+});
 
 server.listen(PORT, () => {
   console.log("listening on port : " + PORT);
