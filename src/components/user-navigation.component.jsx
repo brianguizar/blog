@@ -23,7 +23,7 @@ const UserNavigationPanel = () => {
                     Perfil
                 </Link>
                 <Link to="/dashboard/blogs" className="link pl-8 py-4">
-                    Dashboard
+                    Panel de Control
                 </Link>
                 <Link to="/dashboard/edit-profile" className="link pl-8 py-4">
                     Configuración
