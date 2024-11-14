@@ -2,30 +2,31 @@ import axios from "axios";
 
 
 
-export const filterPaginationData = async ({create_new_arr = false, state, data, page, countRoute,data_to_send = {} }) =>{
- 
-    let obj; 
+export const filterPaginationData = async  ({create_new_arr = false, state ,data, page, countRoute , 
+    data_to_send 
+ }) =>{ 
 
-    if (state !== null && !create_new_arr) {
+    let obj;
 
-        obj = {...state,results: [...state.results,...data], page : page}
+    if(state != null && !create_new_arr){
 
-        // Código a ejecutar si arr no es null
-    }else {
+        obj = {...state, results : [...state.results, ...data], page : page}
+    }else{
 
-        await axios.post(import.meta.VITE_SERVER_DOMAIN + countRoute, data_to_send )
-         .then(({data : {totalDocs }}) => {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + countRoute, data_to_send)
+        .then(({data : {totalDocs}}) => {
 
-            obj = {results : data, page : 1, totalDocs}
-         })
-         .catch(err => {
+            obj = {results :data, page : 1, totalDocs}
+
+
+        })
+        .catch(err => {
 
             console.log(err)
-         })
+        })
     }
 
     return obj;
-    
 
 
 }
