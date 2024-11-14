@@ -12,10 +12,8 @@ import LoadMoreDataBtn from "../components/load-more.component";
 
 const HomePage = () => {
   const [blogs, setBlog] = useState(null);
-
-  
   const [trendingBlogs, setTrendingBlog] = useState(null);
-  const [pageState, setPageState] = useState("home");
+  const [pageState, setPageState] = useState("home"); 
 
   const categories = [
     "Musica",
@@ -24,6 +22,8 @@ const HomePage = () => {
     "Redes Sociales",
     "Cocina",
     "Tecnologia",
+    "Prueba",
+    "Libros",
   ];
 
   const fetchLatestBlogs = ({page = 1}) => {
@@ -31,48 +31,52 @@ const HomePage = () => {
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", {page})
       .then(async ({ data }) => {
 
+          
         console.log(data.blogs);
 
         let formatedData = await filterPaginationData({
 
           state : blogs,
-          data :data.blogs,
+          data: data.blogs,
           page,
           countRoute : "/all-latest-blogs-count"
-        })
-
-        console.log(formatedData);
 
 
-        setBlog(formatedData);
-
+        }) 
+           
+           console.log(formatedData);
+           setBlog(formatedData);
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  const fetchBlogsByCategory = ({page = 1}) =>{
+
+  const fetchBlogsByCategory = ({page = 1}) => {
 
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {tag : pageState, page})
-      .then(async ({ data }) => {
-
-        let formatedData = await filterPaginationData({
-
-          state : blogs,
-          data :data.blogs,
-          page,
-          countRoute : "/search-blogs-count",
-          data_to_send : {tag : pageState}
-        })
+    .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {tag: pageState, page})
+    .then(async ({ data }) => {
 
 
-        setBlog(data.blogs);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      let formatedData = await filterPaginationData({
+
+        state : blogs,
+        data: data.blogs,
+        page,
+        countRoute : "/search-blogs-count",
+        data_to_send: {tag : pageState }
+
+
+      }) 
+         
+         setBlog(formatedData);
+
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 
 
   }
@@ -104,7 +108,6 @@ const HomePage = () => {
     
     if(pageState == "home"){
         fetchLatestBlogs({page : 1});
-
     }else{
 
       fetchBlogsByCategory({page : 1})
@@ -129,28 +132,30 @@ const HomePage = () => {
               {blogs == null ? (
                 <Loader />
               ) : (
-
                 blogs.results.length ? 
-                    blogs.results.map((blog, i) => {
-                      return (
+                  blogs.results.map((blog, i) => {
+                    return(
+                    <AnimationWrapper
+                      transition={{ duration: 1, delay: i * 0.1
+                      }}
+                      key={i}
+                    >
+                      <BlogPostCard
+                        content={blog}
+                        author={blog.author.personal_info
 
-                      <AnimationWrapper
-                        transition={{ duration: 1, delay: i * 0.1 }}
-                        key={i}
-                      >
-                        <BlogPostCard
-                          content={blog}
-                          author={blog.author.personal_info}
-                        />
-                      </AnimationWrapper>
-                    );
-                  })
-                : <NoDataMessage message="No hay blogs"/>
+                        }
+                      />
+                    </AnimationWrapper>
+                  );
+                })
+                :<NoDataMessage message="No hay blogs publicados"/>
+              )}
+              <LoadMoreDataBtn 
+                  state={blogs} 
+                  fetchDataFun={(pageState === "home" ? fetchLatestBlogs : fetchBlogsByCategory)} 
+                />
 
-            )}
-
-           <LoadMoreDataBtn state={blogs} fetchDataFun={(pageState = "home" ? fetchLatestBlogs
-            : fetchLatestBlogs )}/>
             </>
 
             {trendingBlogs == null ? (
@@ -158,7 +163,7 @@ const HomePage = () => {
             ) : (
               trendingBlogs.length ?
               trendingBlogs.map((blog, i) => {
-                return (
+                return(
                 <AnimationWrapper
                   transition={{ duration: 1, delay: i * 0.1 }}
                   key={i}
@@ -167,7 +172,7 @@ const HomePage = () => {
                 </AnimationWrapper>
               );
             })
-            : <NoDataMessage message="No hay blogs en tendencia"/>
+            :<NoDataMessage message="No hay blogs en tendencia"/>
             )}
           </InPageNavigation>
         </div>
@@ -203,7 +208,7 @@ const HomePage = () => {
               {trendingBlogs == null ? (
                 <Loader />
               ) : (
-                trendingBlogs.length ?
+                trendingBlogs.length ? 
                 trendingBlogs.map((blog, i) => {
                   return (
                   <AnimationWrapper
@@ -212,9 +217,9 @@ const HomePage = () => {
                   >
                     <MinimalBlogPost blog={blog} index={i} />
                   </AnimationWrapper>
-                  );
-                })
-              : <NoDataMessage message="No hay blogs en tendencia"/>
+                );
+              }) 
+              :<NoDataMessage message="No hay blogs en tendencia"/>
               )}
             </div>
           </div>
