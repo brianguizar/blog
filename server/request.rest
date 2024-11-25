@@ -1,1 +1,16 @@
-GET http://localhost:3000/trending-blogs
+# POST http://localhost:3000/signin
+# Content-Type: application/json
+
+# {
+#     "email": "danielbaenaaa@gmail.com",
+#     "password": "5pxQ83J9$"
+# }
+
+POST http://localhost:3000/change-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDNmMWQzZWVhNDgyMGE0MDcxNGE0ZiIsImlhdCI6MTczMjUwNjkxMX0.t8ooADVRTrBCbc7b0UZcckXZzgHngxb_DNzcgjJr6tU
+
+{
+    "currentPassword": "5pxQ83J9$",
+    "newPassword": "5pxQ83J99$"
+}

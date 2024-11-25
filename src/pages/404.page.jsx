@@ -17,8 +17,9 @@ const PageNotFound = () => {
     
         <h1 className="text-4xl font-gelasio leading-7">Página no encontrada</h1>
         <p className="text-dark-grey text-xl leading-7 -mt-8">
-            La página que estás buscando no existe. 
-            <Link to="/" className="text-black underline">Regresa al inicio</Link>
+            La página que estás buscando no existe.   
+            <br /> 
+            <Link to="/" className="text-2xl text-black underline">Regresa al inicio</Link>
         </p>
     
         <div className="mt-auto">

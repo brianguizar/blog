@@ -16,14 +16,14 @@ const HomePage = () => {
   const [pageState, setPageState] = useState("home"); 
 
   const categories = [
-    "Musica",
-    "Estilo de Vida",
-    "Ejercicio",
-    "Redes Sociales",
-    "Cocina",
-    "Tecnologia",
-    "Prueba",
-    "Libros",
+    "musica",
+    "estilo de Vida",
+    "ejercicio",
+    "redes sociales",
+    "ia",
+    "tecnologia",
+    "prueba",
+    "libros",
   ];
 
   const fetchLatestBlogs = ({page = 1}) => {

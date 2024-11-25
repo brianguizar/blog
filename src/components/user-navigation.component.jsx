@@ -25,7 +25,7 @@ const UserNavigationPanel = () => {
                 <Link to="/dashboard/blogs" className="link pl-8 py-4">
                     Panel de Control
                 </Link>
-                <Link to="/dashboard/edit-profile" className="link pl-8 py-4">
+                <Link to="/settings/edit-profile" className="link pl-8 py-4">
                     Configuración
                 </Link>
                 <span className="absolute border-t border-grey w-[100%]"></span>

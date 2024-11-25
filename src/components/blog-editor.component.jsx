@@ -1,4 +1,4 @@
-import { Link , useNavigate} from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
@@ -13,12 +13,6 @@ import { UserContext } from "../App";
 
 const BlogEditor = () => {
 
-  //let blogBannerRef = useRef();
-
-  let {userAuth :{access_token} } = useContext(UserContext)
-
-  let navigate  = useNavigate();
-
   let {
     blog,
     blog: { title, banner, content, tags, des },
@@ -28,43 +22,49 @@ const BlogEditor = () => {
     setEditorState
   } = useContext(EditorContext);
 
+  let { userAuth: { access_token } } = useContext(UserContext)
+  let { blog_id } = useParams();
+  let navigate = useNavigate();
+
+
+
   useEffect(() => {
 
-    if(!textEditor.inReady){
+    if (!textEditor.isReady) {
 
       setTextEditor(
         new EditorJS({
           holderId: "textEditor",
-          data: content,
+          data: Array.isArray(content) ? content[0] : content,
           tools: tools,
           placeholder: "Es hora de escribir una increible historia",
         })
       );
 
     }
-    
+
   }, []);
 
   const handleBannerUpload = (e) => {
     let img = e.target.files[0];
 
-    if(img){
+    if (img) {
 
       let loadingToast = toast.loading("Subiendo...")
 
       uploadImage(img).then((url) => {
-        if(url){
+        if (url) {
 
           toast.dismiss(loadingToast);
           toast.success("Subida :)")
 
-          setBlog({ ...blog, banner: url})
+          setBlog({ ...blog, banner: url })
         }
       })
-      .catch(err => {
-        toast.dismiss(loadingToast);
-        return toast.error(err)
-      })
+        .catch(err => {
+          toast.dismiss(loadingToast);
+          return toast.error(err)
+        })
     }
   }
 
@@ -86,38 +86,38 @@ const BlogEditor = () => {
 
   //Publicar el blog
   const handlePublishEvent = () => {
-    if(!banner.length){
+    if (!banner.length) {
       return toast.error("Tu blog debe de contener un banner")
     }
 
-    if(!title.length){
+    if (!title.length) {
       return toast.error("Tu blog debe de tener un titulo")
-    } 
+    }
 
-    if(textEditor.isReady){
+    if (textEditor.isReady) {
       textEditor.save().then(data => {
-        if(data.blocks.length){
+        if (data.blocks.length) {
           setBlog({ ...blog, content: data });
           setEditorState("publish")
-        } else{
+        } else {
           return toast.error("El contenido del blog no puede estar vacio")
         }
       })
-      .catch((err) => {
-        console.log(err);
-      })
+        .catch((err) => {
+          console.log(err);
+        })
     }
 
   };
 
-  const handleSaveDraft = (e) =>{
+  const handleSaveDraft = (e) => {
 
-    if (e.target.className.includes("disable")){
+    if (e.target.className.includes("disable")) {
 
       return;
     }
 
-    if(!title.length){
+    if (!title.length) {
 
       return toast.error("Escribe el titulo del blog antes de guardarlo como borrador")
     }
@@ -127,11 +127,11 @@ const BlogEditor = () => {
     e.target.classList.add('disable');
 
 
-    if(textEditor.isReady){
+    if (textEditor.isReady) {
 
-      textEditor.save().then(content =>{
+      textEditor.save().then(content => {
 
-            
+
         let blogObj = {
 
           title, banner, des, content, tags, draft: true
@@ -139,42 +139,41 @@ const BlogEditor = () => {
 
 
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
-          blogObj, {
-    
-            headers: {
-              'Authorization' : `Bearer ${access_token} `
-            }
+          { ...blogObj, id: blog_id }, {
+
+          headers: {
+            'Authorization': `Bearer ${access_token} `
+          }
+        })
+          .then(() => {
+
+            e.target.classList.remove('disable');
+
+            toast.dismiss(loadingToast);
+            toast.success("Guardado :)");
+
+            setTimeout(() => {
+
+              navigate("/")
+
+            }, 500);
+
           })
-        .then(()=> {
-    
-    
-          e.target.classList.remove('disable');
-    
-          toast.dismiss(loadingToast);
-          toast.success("Guardado :)");
-    
-          setTimeout(() =>{
-    
-            navigate("/")
-    
-          }, 500);
-    
-        })
-    
-        .catch(({response }) => {
-    
-          e.target.classList.remove('disable'); 
-          toast.dismiss(loadingToast);
-    
-          return toast.error(response.data.error)
-    
-        })
-    
+
+          .catch(({ response }) => {
+
+            e.target.classList.remove('disable');
+            toast.dismiss(loadingToast);
+
+            return toast.error(response.data.error)
+
+          })
 
 
-      } )
+
+      })
     }
-    
+
 
   }
 
@@ -223,7 +222,7 @@ const BlogEditor = () => {
               </label>
             </div>
 
-            <textarea 
+            <textarea
               defaultValue={title}
               placeholder="Titulo del Blog"
               className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
