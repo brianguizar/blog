@@ -1,54 +1,33 @@
-import { Route, Routes } from "react-router-dom";
-import Navbar from "./components/navbar.component";
-import UserAuthForm from "./pages/userAuthForm.page";
-import { createContext, useEffect, useState } from "react";
-import { lookInSession } from "./common/session";
-import Editor from "./pages/editor.pages";
-import HomePage from "./pages/home.page";
-import SearchPage from "./pages/search.page";
-import PageNotFound from "./pages/404.page";
-import ProfilePage from "./pages/profile.page";
-import BlogPage from "./pages/blog.page";
-import SideNav from "./components/sidenavbar.component";
-import ChangePassword from "./pages/change-password.page";
+import { useState } from "react";
+const InputBox = ({name, type, id, value, placeholder, icon, disable = false }) => {
 
-// Creación del contexto para compartir información del usuario a través de la aplicación
-export const UserContext = createContext({});
+    const [passwordVisible, setPasswordVisible] = useState(false);
 
-const App = () => {
-  // Estado local para almacenar la información de autenticación del usuario
-  const [userAuth, setUserAuth] = useState({});
+    return(
+        <div className="relative w-[100%] mb-4">
+            <input
+                name={name}
+                type={type == "password" ?  passwordVisible ? "text" : "password" : type}
+                placeholder={placeholder}
+                defaultValue={value}
+                id={id}
+                disabled = {disable}
+                className="input-box"
+            />
+            <i className={"fi " + icon + " input-icon"}></i>
 
-  useEffect(() => {
-    let userInSession = lookInSession("user");
-    // Si hay un usuario en la sesión, actualiza el estado con su información
 
-    userInSession
-      ? setUserAuth(JSON.parse(userInSession))
-      : setUserAuth({ access_token: null }); // Si no hay usuario, asigna un token nulo indicando que no está autenticado
-  }, []);
+            {
+                type == "password" ?
+                <i className={"fi fi-rr-eye" + (!passwordVisible ? "-crossed" : "") + " input-icon left-[auto] right-4 cursor-pointer"}
+                onClick={() => setPasswordVisible(currentVal => !currentVal)}
+                >
 
-  return (
-    <UserContext.Provider value={{ userAuth, setUserAuth }}>
-      <Routes>
-        <Route path="/editor" element={<Editor />} />
-        <Route path="/editor/:blog_id" element={<Editor />} />
-        <Route path="/" element={<Navbar />}>
-          <Route  index element = {<HomePage />}/>
-          <Route path="settings" element={<SideNav />}>
-            <Route path="edit-profile" element={<h1>Edit profile-edit</h1>} />
-            <Route path="change-password" element={ <ChangePassword /> } />
-          </Route>
-          <Route path="signin" element={<UserAuthForm type="sign-in" />} />
-          <Route path="signup" element={<UserAuthForm type="sign-up" />} />
-          <Route path="search/:query" element={<SearchPage/>} /> 
-          <Route path="user/:id" element={<ProfilePage/>}/>
-          <Route path="blog/:blog_id" element={ <BlogPage /> } />
-          <Route path="*" element={<PageNotFound/>}/>
-        </Route>
-      </Routes>
-    </UserContext.Provider>
-  );
-};
+                </i>
+                : ""
+            }
+        </div>
+    )
+}
 
-export default App;
+export default InputBox;
