@@ -61,7 +61,7 @@ const Navbar = () => {
                     <img src={logo} className="w-full" alt="Logo" />
                 </Link>
 
-                <p>{new_notification_available}</p>
+               
 
                 {/* Barra de búsqueda */}
                 <div className={`absolute bg-white w-full left-0 top-full mt-0.5 border-b border-grey py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto ${searchBoxVisibility ? "" : "hidden"}`}>
@@ -87,7 +87,7 @@ const Navbar = () => {
 
                     {access_token ? (
                         <>
-                            <Link to="/dashboard/notification">
+                            <Link to="/dashboard/notifications">
                                 <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10">
                                     <i className="fi fi-rr-bell text-2x1 block mt-1"></i>
                                     {
