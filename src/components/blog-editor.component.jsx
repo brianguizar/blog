@@ -154,7 +154,7 @@ const BlogEditor = () => {
 
             setTimeout(() => {
 
-              navigate("/")
+              navigate("/dashboard/blogs?tab=draft")
 
             }, 500);
 
